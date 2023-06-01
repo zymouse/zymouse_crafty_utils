@@ -1,0 +1,14 @@
+---
+bag_prefix_name: simulated_perception
+topic_names: 
+  - /sensing/gnss/ublox/fix_velocity
+  - /sensing/gnss/ublox/nav_sat_fix 
+  - /sensing/gnss/ublox/navpvt 
+  - /sensing/imu/tamagawa/imu_raw
+  - /sensing/lidar/left/velodyne_packets
+  - /sensing/lidar/right/velodyne_packets
+  - /sensing/lidar/top/velodyne_packets 
+  - /vehicle/status/control_mode
+  - /vehicle/status/gear_status
+  - /vehicle/status/steering_status
+  - /vehicle/status/velocity_status

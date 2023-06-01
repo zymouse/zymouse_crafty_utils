@@ -1,0 +1,15 @@
+.idea
+.vscode
+tools/config/*
+
+# catkin
+build/
+devel/
+install/
+logs/
+.catkin_tools/
+tools/ros_driver/src/rs_to_velodyne/CMakeLists.txt
+tools/ros_driver/.catkin_workspace
+log/
+
+pix-citybot

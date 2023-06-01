@@ -1,0 +1,22 @@
+ros2 bag  info sample-rosbag/
+
+Files:             sample.db3
+Bag size:          262.7 MiB
+Storage id:        sqlite3
+Duration:          29.874s
+Start:             Feb 26 2021 13:02:26.338 (1614315746.338)
+End:               Feb 26 2021 13:02:56.212 (1614315776.212)
+Messages:          8262
+Topic information: Topic: /clock | Type: rosgraph_msgs/msg/Clock | Count: 2941 | Serialization Format: cdr
+                   Topic: /sensing/gnss/ublox/fix_velocity | Type: geometry_msgs/msg/TwistWithCovarianceStamped | Count: 30 | Serialization Format: cdr
+                   Topic: /sensing/gnss/ublox/nav_sat_fix | Type: sensor_msgs/msg/NavSatFix | Count: 30 | Serialization Format: cdr
+                   Topic: /sensing/gnss/ublox/navpvt | Type: ublox_msgs/msg/NavPVT | Count: 30 | Serialization Format: cdr
+                   Topic: /sensing/imu/tamagawa/imu_raw | Type: sensor_msgs/msg/Imu | Count: 853 | Serialization Format: cdr
+                   Topic: /sensing/lidar/left/velodyne_packets | Type: velodyne_msgs/msg/VelodyneScan | Count: 299 | Serialization Format: cdr
+                   Topic: /sensing/lidar/right/velodyne_packets | Type: velodyne_msgs/msg/VelodyneScan | Count: 299 | Serialization Format: cdr
+                   Topic: /sensing/lidar/top/velodyne_packets | Type: velodyne_msgs/msg/VelodyneScan | Count: 288 | Serialization Format: cdr
+                   Topic: /vehicle/status/control_mode | Type: autoware_auto_vehicle_msgs/msg/ControlModeReport | Count: 873 | Serialization Format: cdr
+                   Topic: /vehicle/status/gear_status | Type: autoware_auto_vehicle_msgs/msg/GearReport | Count: 873 | Serialization Format: cdr
+                   Topic: /vehicle/status/steering_status | Type: autoware_auto_vehicle_msgs/SteeringReport | Count: 873 | Serialization Format: cdr
+                   Topic: /vehicle/status/velocity_status | Type: autoware_auto_vehicle_msgs/msg/VelocityReport | Count: 873 | Serialization Format: cdr
+

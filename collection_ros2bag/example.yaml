@@ -1,0 +1,6 @@
+---
+bag_prefix_name: example
+topic_names: 
+  - topic_name_1
+  - topic_name_2
+  - topic_name_3
