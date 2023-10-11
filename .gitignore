@@ -13,3 +13,6 @@ tools/ros_driver/.catkin_workspace
 log/
 
 pix-citybot
+
+# file
+*.o
