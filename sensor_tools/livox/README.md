@@ -26,5 +26,9 @@ ping 192.168.1.1xx
 ping [LidarUpdataIp]
 ```
 
+> 下图中，第二步修改Lidar-ip示例图，第三步验证是否修改成功示例图
+
+![](./images/docs.jpg)
+
 ## 引用
 [修改使用的API](https://github.com/Livox-SDK/Livox-SDK2/blob/f1445aaeb4632195f97ad6cb4cbe9efda96f0fb2/samples/livox_lidar_quick_start/main.cpp#L205C16-L205C16)
