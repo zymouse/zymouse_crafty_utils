@@ -32,7 +32,7 @@ ping 192.168.1.1xx
 ping [LidarUpdataIp]
 ```
 
-> 下图中，第二步修改Lidar-ip示例图，第三步验证是否修改成功示例图
+> 下图中，第一步修改Lidar-ip示例图，第二步验证是否修改成功示例图
 
 ![](./images/docs.jpg)
 
