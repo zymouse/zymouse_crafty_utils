@@ -2,17 +2,25 @@
 #include <cstring>
 #include <cstdint>
 #include "include/livox_lidar_api.h"
+#include "include/colcor_log.h"
 #include <unistd.h>
 
 std::string global_sn;
 std::string global_update_ip;
+uint8_t global_updata_state=0;   // 0 未修改;1 修改成功 2 修改失败 
+
+bool isSubstring(const std::string& a, const std::string& b) {
+    return a.find(b) != std::string::npos || b.find(a) != std::string::npos;
+}
 
 void RebootCallback(livox_status status, uint32_t handle, LivoxLidarRebootResponse* response, void* client_data) {
   if (response == nullptr) {
+    global_updata_state = 2;
     return;
   }
   printf("RebootCallback, status:%u, handle:%u, ret_code:%u\n",
       status, handle, response->ret_code);
+  global_updata_state = 1;
 }
 
 void SetIpInfoCallback(livox_status status, uint32_t handle, LivoxLidarAsyncControlResponse *response, void *client_data) {
@@ -91,7 +99,7 @@ void LidarInfoChangeCallback(const uint32_t handle, const LivoxLidarInfo* info, 
   SetLivoxLidarWorkMode(handle, kLivoxLidarNormal, WorkModeCallback, nullptr);
 
   QueryLivoxLidarInternalInfo(handle, QueryInternalInfoCallback, nullptr);
-  if(std::string(info->sn) == global_sn){
+  if(isSubstring(std::string(info->sn), global_sn)){
     std::cout << "开始修改ip" << std::endl;
 
     LivoxLidarIpInfo lidar_ip_info;
@@ -114,24 +122,35 @@ int main(int argc, char *argv[])
   global_sn = argv[2];
   global_update_ip = argv[3];
   
-  std::cout 
+  LOG_INFO 
   << "即将设备SN: "   << global_sn << "\n"
   << "即将修改IP为: " << global_update_ip << "\n"
-  << std::endl;
+  << LOG_REND;
 
   // REQUIRED, to init Livox SDK2
   if (!LivoxLidarSdkInit(path.c_str())) {
-    printf("Livox Init Failed\n");
+    LOG_ERROR << "Livox Init Failed" << LOG_REND;
     LivoxLidarSdkUninit();
     return -1;
   }
   // REQUIRED, to get a handle to targeted lidar and set its work mode to NORMAL
   SetLivoxLidarInfoChangeCallback(LidarInfoChangeCallback, nullptr);
 
-  sleep(6);
+  while (true)
+  {
+    if(global_updata_state==1){
+      LOG_INFO << "IP 修改完成：" <<  global_update_ip.c_str() << LOG_REND;
+      break;
+    }
+    if(global_updata_state==2){
+      LOG_INFO << "IP 修改失败：" <<  global_update_ip.c_str() << LOG_REND;
+      break;
+    }
+    sleep(1);
+  }
+
+  LOG_INFO << "Livox Quick Start Demo End!" << LOG_REND;
   LivoxLidarSdkUninit();
-  printf("Livox Quick Start Demo End!\n");
-  printf("IP 修改完成：%s\n", global_update_ip.c_str());
   return 0;
 }
 

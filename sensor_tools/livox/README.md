@@ -5,14 +5,20 @@
 
 ## 使用步骤
 ### step-1: 确定Lidar联通工控机
-Livox激光雷出厂IP`192.168.1.1xx`(xx为LivoxSN码最后两位)，比如47MDL9J0020005 -> 192.168.1.105
+
+- 设置工控机主机IP：192.168.1.102
+- Livox激光雷出厂IP`192.168.1.1xx`(xx为LivoxSN码最后两位)，比如47MDL9J0020005 -> 192.168.1.105
+
 ```shell
 ping 192.168.1.1xx
 ```
 ### step-2: 开始修改
+
+> `SN`获取小技巧：可以扫描Lovix Lidar上的二维码获取，避免手动填写错误
+
 ./update_ipv4 [config file] [SN] [LidarUpdataIp]
 - config file    Lidar的配置文件
-- SN:            Lidar的SN
+- SN:            Lidar的`SN`
 - LidarUpdataIp: 想要修改的目标IP
 
 例如`./update_ipv4.run mid360_config.json 47MDL9J0020005 192.168.1.105`
