@@ -53,15 +53,9 @@ class KeyboardPublisher(Node):
                     if event.type == ecodes.EV_KEY:
                         event_status = 'down' if event.value == 1 else 'up' if event.value == 0 else 'hold'
                         if event.code == 2 and event_status=='down':
-                            if self.autoware_engage_pub_bool:
-                                self.pub_engage(True)
-                                self.autoware_engage_pub_bool = False
-                            else:
-                                self.pub_engage(False)
-                                self.autoware_engage_pub_bool = True
-                                
+                            self.pub_engage(False)
                         elif event.code == 3 and event_status=='down':
-                            self.pub_velocity_limit(self.yaml_data['button_B'])
+                            self.pub_engage(True)
                         elif event.code == 4 and event_status=='down':
                             self.pub_velocity_limit(self.yaml_data['button_C'])
                         elif event.code == 5 and event_status=='down':
