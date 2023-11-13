@@ -17,7 +17,8 @@ class KeyboardPublisher(Node):
         self.autoware_engage_pub = self.create_publisher(Engage, "/autoware/engage", QoSProfile(depth=5))
         self.vehicle_velocity_pub = self.create_publisher(VelocityLimit, "/planning/scenario_planning/max_velocity", QoSProfile(depth=5))
         self.autoware_engage_pub_bool = True
-         
+        self.yaml_data = {}
+        
         self.dev_input_path = self.find_keyboard_device()
         if self.dev_input_path is None:
             raise RuntimeError("键盘设备未找到或配置文件错误")
@@ -60,29 +61,26 @@ class KeyboardPublisher(Node):
                                 self.autoware_engage_pub_bool = True
                                 
                         elif event.code == 3 and event_status=='down':
-                            self.pub_velocity_limit(5)
+                            self.pub_velocity_limit(self.yaml_data['button_B'])
                         elif event.code == 4 and event_status=='down':
-                            self.pub_velocity_limit(10)
+                            self.pub_velocity_limit(self.yaml_data['button_C'])
                         elif event.code == 5 and event_status=='down':
-                            self.pub_velocity_limit(15)
+                            self.pub_velocity_limit(self.yaml_data['button_D'])
                         else:
                             pass
-                        
-                        
         print("键盘事件监听器已停止")
     
     def find_keyboard_device(self):
-            data = {}
             with open('keyboard_publisher.yaml', 'r') as stream:
                 try:
-                    data = yaml.safe_load(stream)
-                    print(data)  # 打印读取的数据
+                    self.yaml_data = yaml.safe_load(stream)
+                    print(self.yaml_data)  # 打印读取的数据
                 except yaml.YAMLError as exc:
                     self.get_logger().error("配置文件错误")
                     return None
             devices = [InputDevice(path) for path in list_devices()]
             for device in devices:
-                if ecodes.EV_KEY in device.capabilities() and device.name==data['device_name'] and device.phys==data['device_phys']:
+                if ecodes.EV_KEY in device.capabilities() and device.name==self.yaml_data['device_name'] and device.phys==self.yaml_data['device_phys']:
                     return device.path
             
             self.get_logger().error("请插入遥控器")
