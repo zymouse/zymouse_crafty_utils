@@ -38,10 +38,13 @@ source autoware_robobus_install/setup.bash
 ./keyboard_publisher.py
 ```
 
+#### step-3：执行成功效果图
+![](./images/success.jpg)
+
 #### 按钮介绍
 ![](./images/keyboard_publisher.jpg)
 
 - `A`: 下发autoware-engage: Ture 
 - `B`: 下发autoware-engage: False 
-- `C`: 下发autoware-velocity_limit: 6 （可以在`keyboard_publisher.yaml`修改） 
-- `D`: 下发autoware-velocity_limit: 12（可以在`keyboard_publisher.yaml`修改） 
+- `C`: 下发autoware-velocity_limit: 8km/h （可以在`keyboard_publisher.yaml`修改） 
+- `D`: 下发autoware-velocity_limit: 13km/h（可以在`keyboard_publisher.yaml`修改） 
