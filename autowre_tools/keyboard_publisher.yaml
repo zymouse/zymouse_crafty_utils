@@ -1,6 +1,6 @@
 device_name: HID 2704:2018
-device_phys: usb-0000:00:14.0-8/input0
+device_phys: input0
 # button_A:
 # button_B: 5
-button_C: 6
-button_D: 12
+button_C: 8
+button_D: 13

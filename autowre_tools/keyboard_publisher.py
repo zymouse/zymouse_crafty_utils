@@ -10,6 +10,9 @@ from rclpy.qos import QoSProfile
 from autoware_auto_vehicle_msgs.msg import Engage
 from tier4_planning_msgs.msg import VelocityLimit
 
+def ends_with_same_substring(strA, strB):
+    min_length = min(len(strA), len(strB))
+    return strA[-min_length:] == strB[-min_length:]
 
 class KeyboardPublisher(Node):
     def __init__(self):
@@ -53,9 +56,9 @@ class KeyboardPublisher(Node):
                     if event.type == ecodes.EV_KEY:
                         event_status = 'down' if event.value == 1 else 'up' if event.value == 0 else 'hold'
                         if event.code == 2 and event_status=='down':
-                            self.pub_engage(False)
-                        elif event.code == 3 and event_status=='down':
                             self.pub_engage(True)
+                        elif event.code == 3 and event_status=='down':
+                            self.pub_engage(False)
                         elif event.code == 4 and event_status=='down':
                             self.pub_velocity_limit(self.yaml_data['button_C'])
                         elif event.code == 5 and event_status=='down':
@@ -74,7 +77,7 @@ class KeyboardPublisher(Node):
                     return None
             devices = [InputDevice(path) for path in list_devices()]
             for device in devices:
-                if ecodes.EV_KEY in device.capabilities() and device.name==self.yaml_data['device_name'] and device.phys==self.yaml_data['device_phys']:
+                if ecodes.EV_KEY in device.capabilities() and device.name==self.yaml_data['device_name'] and ends_with_same_substring(device.phys, self.yaml_data['device_phys']):
                     return device.path
             
             self.get_logger().error("请插入遥控器")
