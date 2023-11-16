@@ -1,6 +1,6 @@
 - dev_path: /dev/video0
-  ln_name: camera/front_6mm
+  ln_name: camera/top_6mm
 - dev_path: /dev/video2
-  ln_name: camera/top_3mm
-# - dev_path: /dev/video4
-#   ln_name: camera/rear_3mm
+  ln_name: camera/rear_3mm
+- dev_path: /dev/video4
+  ln_name: camera/front_3mm

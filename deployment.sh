@@ -23,7 +23,8 @@ function install_yq() {
     VERSION=v4.35.2 
     BINARY=yq_linux_$arch
 
-    sudo wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&\
+    wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} &&\
+    sudo mv ${BINARY} /usr/bin/yq &&\
     sudo chmod +x /usr/bin/yq
 }
 
