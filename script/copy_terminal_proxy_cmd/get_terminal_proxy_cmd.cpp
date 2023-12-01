@@ -7,6 +7,11 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <QInputDialog> // 包含QInputDialog的头文件
+#include <QLineEdit>    // 包含QLineEdit的头文件
+#include <QMessageBox>
+
+
 // 获取网络接口和IPv4地址的函数
 QMap<QString, QString> getNetworkInterfaces() {
     QMap<QString, QString> interfaceAddresses;
@@ -26,17 +31,34 @@ QMap<QString, QString> getNetworkInterfaces() {
     return interfaceAddresses;
 }
 
-
-QString readProxyTemplate(const QString& filePath) {
+QString readProxyNumber(const QString& filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return ""; // 如果文件打开失败，返回空字符串
+        // 文件打开失败，弹出输入框供用户输入
+        bool ok;
+        QString text = QInputDialog::getText(nullptr, "输入", 
+                                             "无法打开[proxy.txt]文件,请手动输入clash端口号:", 
+                                             QLineEdit::Normal,
+                                             "7890", &ok);
+        if (ok) {
+            // 用户输入了内容，将这个内容保存到文件中
+            QFile outFile(filePath);
+            if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&outFile);
+                out << text;
+                outFile.close();
+            }
+            return text;
+        } else {
+            QApplication::exit(); // 如果用户取消，退出程序
+        }
     }
     QTextStream in(&file);
     QString content = in.readAll();
     file.close();
     return content;
 }
+
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
@@ -45,8 +67,10 @@ int main(int argc, char *argv[]) {
     QAction *exitAction = new QAction("退出", &menu);
 
     // 读取代理模板文件
-    // QString proxyTemplate = readProxyTemplate("proxy_template.txt");
-
+    QString proxyNumber = readProxyNumber("proxy.txt");
+    QString proxyTemplate = QString("export https_proxy=http://%1:%2 "
+                              "http_proxy=http://%1:%2 "
+                              "all_proxy=socks5://%1:%2").arg("%1", proxyNumber);
     // 获取网络接口和IPv4地址
     QMap<QString, QString> interfaces = getNetworkInterfaces();
 
@@ -56,11 +80,8 @@ int main(int argc, char *argv[]) {
         menu.addAction(interfaceAction);
 
         // 连接菜单项的触发信号到槽函数，复制IP地址到剪切板
-        QObject::connect(interfaceAction, &QAction::triggered, [it](bool) {
-            // QString formattedProxy = proxyTemplate.arg(it.value());
-            QString formattedProxy = QString("export https_proxy=http://%1:7890 "
-                                             "http_proxy=http://%1:7890 "
-                                             "all_proxy=socks5://%1:7890").arg(it.value());
+        QObject::connect(interfaceAction, &QAction::triggered, [proxyTemplate, it](bool) {
+            QString formattedProxy = proxyTemplate.arg(it.value());
             QApplication::clipboard()->setText(formattedProxy);
         });
     }
