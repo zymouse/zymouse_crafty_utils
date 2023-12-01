@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     QAction *exitAction = new QAction("退出", &menu);
 
     // 读取代理模板文件
-    QString proxyTemplate = readProxyTemplate("proxy_template.txt");
+    // QString proxyTemplate = readProxyTemplate("proxy_template.txt");
 
     // 获取网络接口和IPv4地址
     QMap<QString, QString> interfaces = getNetworkInterfaces();
@@ -56,8 +56,11 @@ int main(int argc, char *argv[]) {
         menu.addAction(interfaceAction);
 
         // 连接菜单项的触发信号到槽函数，复制IP地址到剪切板
-        QObject::connect(interfaceAction, &QAction::triggered, [proxyTemplate, it](bool) {
-            QString formattedProxy = proxyTemplate.arg(it.value());
+        QObject::connect(interfaceAction, &QAction::triggered, [it](bool) {
+            // QString formattedProxy = proxyTemplate.arg(it.value());
+            QString formattedProxy = QString("export https_proxy=http://%1:7890 "
+                                             "http_proxy=http://%1:7890 "
+                                             "all_proxy=socks5://%1:7890").arg(it.value());
             QApplication::clipboard()->setText(formattedProxy);
         });
     }
