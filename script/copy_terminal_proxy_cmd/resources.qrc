@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>clash.png</file>
+        <!-- 其他文件 -->
+    </qresource>
+</RCC>
