@@ -49,6 +49,7 @@ function create_rules(){
       ATTRS_idVendor=$(udevadm info --attribute-walk --name=$dev_path  |grep 'ATTRS{idVendor}=='  -m 1)
       ATTRS_idProduct=$(udevadm info --attribute-walk --name=$dev_path  |grep 'ATTRS{idProduct}=='  -m 1)
       ATTR_name=$(udevadm info --attribute-walk --name=$dev_path  |grep 'ATTR{name}=='  -m 1)
+      ATTR_index=$(udevadm info --attribute-walk --name=$dev_path  |grep 'ATTR{index}=='  -m 1)
 
       SUBSYSTEM=$(fix_space_string "$SUBSYSTEM")
       SUBSYSTEMS=$(fix_space_string "$SUBSYSTEMS")
@@ -58,7 +59,7 @@ function create_rules(){
       ATTR_name=$(fix_space_string "$ATTR_name")
 
       # $ATTRS_idProduct, $ATTRS_idVendor, 
-      echo "$SUBSYSTEM, $KERNELS, $SUBSYSTEMS, $ATTR_name, SYMLINK+=\"$SYMLINK\""
+      echo "$SUBSYSTEM, $SUBSYSTEMS, $KERNELS, $ATTR_index, $ATTR_name, SYMLINK+=\"$SYMLINK\""
       
       if [ -z "$SUBSYSTEM" ] && [ -z "$SUBSYSTEMS" ]; then
         return 1
