@@ -3,7 +3,7 @@
 # Obtain the path to the application
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 DIV_DIR=${SCRIPT_DIR%/*}
-PCD_DIV=$DIV_DIR"/build/pointcloud_divider"
+PCD_DIV=$DIV_DIR"/pointcloud_divider"
 
 # Show usage
 function usage() {
