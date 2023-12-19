@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>clash.png</file>
+         <file>PIXMOVING.png</file>
+    </qresource>
+</RCC>
