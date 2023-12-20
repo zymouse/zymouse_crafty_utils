@@ -75,32 +75,42 @@ int main(int argc, char *argv[]) {
         });
 
         // 开始执行脚本
-        process->start("sh", QStringList() << "-i" << "-c"  << homePath + "/pix/scripts/scripts/autoware/check_ros_topics.sh");
+        process->start("sh", QStringList() 
+            << "-i" << "-c"  
+            << homePath + "/pix/scripts/scripts/autoware_menu_button/check_ros_topics.sh");
     });
 
     // 连接 autoware 启动的信号到具体的槽函数
     QObject::connect(autowareStartAction, &QAction::triggered, [&autowareStartAction, homePath](){
         // 实现 autoware 启动的功能
         autowareStartAction->setEnabled(false); // 不可点击
-        QProcess::execute("sh", QStringList() << "-i" << "-c"  << homePath + "/pix/scripts/scripts/robobus.sh");
+        QProcess::execute("sh", QStringList() 
+            << "-i" << "-c"  
+            << homePath + "/pix/scripts/scripts/robobus.sh");
     });
 
     // 连接 autoware 关闭的信号到具体的槽函数
     QObject::connect(autowareStopAction, &QAction::triggered, [&homePath](){
         // 实现 autoware 关闭的功能
-        QProcess::execute("sh", QStringList() << "-i" << "-c"  << homePath + "/pix/scripts/scripts/autoware/close_autoware.sh");
+        QProcess::execute("sh", QStringList() 
+            << "-i" << "-c"  
+            << homePath + "/pix/scripts/scripts/autoware_menu_button/close_autoware.sh");
     });
 
     // 连接 IPC 重启的信号到具体的槽函数
     QObject::connect(ipcRestartAction, &QAction::triggered, [&](){
         // 实现 IPC 重启的功能
-        QProcess::execute("reboot", QStringList());
+        QProcess::execute("sh", QStringList() 
+            << "-i" << "-c"  
+            << homePath + "/pix/scripts/scripts/autoware_menu_button/ipc_reboot.sh");
     });
 
     // 连接 IPC 关闭的信号到具体的槽函数
     QObject::connect(ipcStopAction, &QAction::triggered, [&](){
         // 实现 IPC 关机的功能
-        QProcess::execute("poweroff", QStringList());
+        QProcess::execute("sh", QStringList() 
+            << "-i" << "-c"  
+            << homePath + "/pix/scripts/scripts/autoware_menu_button/ipc_poweroff.sh");
     });
 
     // 连接一键恢复的信号到具体的槽函数
