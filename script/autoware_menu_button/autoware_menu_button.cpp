@@ -91,6 +91,7 @@ int main(int argc, char *argv[]) {
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
             // 脚本成功执行
             autowareStartAction->setEnabled(true); // 可点击
+            autowareStopClickNumber = 0;
             QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
         } else {
             // 脚本执行失败
