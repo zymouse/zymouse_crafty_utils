@@ -34,25 +34,29 @@ int main(int argc, char *argv[]) {
     QAction *autowareStartAction = new QAction("AUTOWARE-RUN", &menu);
     QAction *autowareStopAction = new QAction("AUTOWARE-STOP", &menu);
     QAction *rosNodeStop = new QAction("ROS-NODE-kill", &menu);
-    QAction *ipcStopAction = new QAction("IPC关机", &menu);
-    QAction *oneClickDetection = new QAction("ONE-CLICK-DETECTION", &menu);
+    QAction *hardwareDetectionAction = new QAction("Hardware-Detection", &menu);
+    QAction *softwareDetectionAction = new QAction("Software-Detection", &menu);
     
     // 添加自定义的菜单项的脚本处理项
     QProcess *autowareRestartProcess = new QProcess(&menu);
     QProcess *autowareStartProcess = new QProcess(&menu);
     QProcess *autowareStopProcess = new QProcess(&menu);
     QProcess *rosNodeStopProcess = new QProcess(&menu);
-    QProcess *ipcStopProcess = new QProcess(&menu);
-    QProcess *oneClickDetectionProcess = new QProcess(&menu);
+    QProcess *hardwareDetectionProcess = new QProcess(&menu);
+    QProcess *softwareDetectionProcess = new QProcess(&menu);
 
     // 添加进度条弹窗
     QProgressDialog *progressDialog1 = new QProgressDialog("autoware启动脚本正在执行...", "取消", 0, 0, &menu);
-    QProgressDialog *progressDialog2 = new QProgressDialog("autoware停止脚本正在执行...", "取消", 0, 0, &menu);
+    QProgressDialog *progressDialog_hardwareDetection = new QProgressDialog("硬件检测脚本正在执行...", "取消", 0, 0, &menu);
+    QProgressDialog *progressDialog_softwareDetection = new QProgressDialog("软件检测脚本正在执行...", "取消", 0, 0, &menu);
     
     progressDialog1->setWindowModality(Qt::WindowModal);
-    progressDialog2->setWindowModality(Qt::WindowModal);
+    progressDialog_hardwareDetection->setWindowModality(Qt::WindowModal);
+    progressDialog_softwareDetection->setWindowModality(Qt::WindowModal);
+
     progressDialog1->close(); // 关闭进度弹窗
-    progressDialog2->close(); // 关闭进度弹窗
+    progressDialog_hardwareDetection->close(); // 关闭进度弹窗
+    progressDialog_softwareDetection->close(); // 关闭进度弹窗
 
 
     // 添加菜单项到菜单
@@ -61,15 +65,16 @@ int main(int argc, char *argv[]) {
     menu.addAction(autowareStopAction);
     menu.addSeparator(); // 添加一个分隔符
     menu.addAction(rosNodeStop);
-    menu.addAction(ipcStopAction);
+    menu.addAction(hardwareDetectionAction);
     menu.addSeparator(); // 添加另一个分隔符
-    menu.addAction(oneClickDetection);
+    menu.addAction(softwareDetectionAction);
     menu.addSeparator(); // 添加另一个分隔符
     menu.addAction(exitAction);
 
     QString homePath = QString(qgetenv("HOME"));
     autowareStartAction->setEnabled(false); // 不可点击
     rosNodeStop->setEnabled(false); // 不可点击
+    softwareDetectionAction->setEnabled(false); // 不可点击
     
     // autowareStopAction 点击次数
     uint8_t autowareStopClickNumber = 0;
@@ -91,16 +96,22 @@ int main(int argc, char *argv[]) {
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
             // 脚本成功执行
             autowareStartAction->setEnabled(true); // 可点击
+            hardwareDetectionAction->setEnabled(true);  
+            softwareDetectionAction->setEnabled(false);  
+
             autowareStopClickNumber = 0;
             QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
+
         } else {
             // 脚本执行失败
             autowareStartAction->setEnabled(false); // 不可点击
+            hardwareDetectionAction->setEnabled(false);  
+            softwareDetectionAction->setEnabled(true); 
             QMessageBox::critical(nullptr, "错误", "脚本执行失败。", QMessageBox::Ok);
 
             // 获取标准错误内容并将其记录到日志或显示给用户
             QByteArray errorOutput = autowareRestartProcess->readAllStandardError();
-            QFile errorLogFile(homePath + "/error.log");
+            QFile errorLogFile(homePath + "/pix/ros-log/autoware_menu_button_error.log");
             if (errorLogFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) { // 使用Append标志
                 QTextStream errorLogStream(&errorLogFile);
                 // 将标准错误内容写入文件
@@ -119,7 +130,8 @@ int main(int argc, char *argv[]) {
 
         // 实现 autoware 启动的功能
         autowareStartAction->setEnabled(false); // 不可点击 
-
+        hardwareDetectionAction->setEnabled(false); // 不可点击
+        softwareDetectionAction->setEnabled(true); // 可点击
         // 开始执行脚本
         autowareStartProcess->start("bash", QStringList() 
             << "-c"  
@@ -148,7 +160,7 @@ int main(int argc, char *argv[]) {
 
             // 获取标准错误内容并将其记录到日志或显示给用户
             QByteArray errorOutput = autowareStartProcess->readAllStandardError();
-            QFile errorLogFile(homePath + "/error.log");
+            QFile errorLogFile(homePath + "/pix/ros-log/autoware_menu_button_error.log");
             if (errorLogFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) { // 使用Append标志
                 QTextStream errorLogStream(&errorLogFile);
                 // 将标准错误内容写入文件
@@ -163,9 +175,6 @@ int main(int argc, char *argv[]) {
 
     // -----------------------------------------------------------------连接 autoware 关闭的信号到具体的槽函数
     QObject::connect(autowareStopAction, &QAction::triggered, [&](){
-        // 显示进度弹窗
-        // progressDialog2->show();
-
         autowareStopClickNumber++;
         if(autowareStopClickNumber>=3){
             autowareStopClickNumber = 0;
@@ -177,37 +186,6 @@ int main(int argc, char *argv[]) {
             << "-c"  
             << homePath + "/pix/scripts/scripts/autoware_menu_button/close_autoware.sh");
     });
-
-    // 连接 QProgressDialog 的 canceled 信号到一个 lambda 表达式
-    // QObject::connect(progressDialog2, &QProgressDialog::canceled, [&]() {
-    //     if (autowareStopProcess->state() == QProcess::Running) {
-    //         autowareStopProcess->terminate(); // 终止正在运行的进程
-    //     }
-    // });
-
-    // 连接 autowareStopProcess 的 finished 信号以检查脚本执行结果
-    // QObject::connect(autowareStopProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-    //                 [&](int exitCode, QProcess::ExitStatus exitStatus){
-    //     progressDialog2->close(); // 关闭进度弹窗
-    //     if (exitStatus == QProcess::NormalExit && exitCode == 0) {
-    //         // 脚本成功执行
-    //         QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
-    //     } else {
-    //         // 脚本执行失败
-    //         QMessageBox::critical(nullptr, "错误", "脚本执行失败。", QMessageBox::Ok);
-
-    //         // 获取标准错误内容并将其记录到日志或显示给用户
-    //         QByteArray errorOutput = autowareStopProcess->readAllStandardError();
-    //         QFile errorLogFile(homePath + "/error.log");
-    //         if (errorLogFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) { // 使用Append标志
-    //             QTextStream errorLogStream(&errorLogFile);
-    //             // 将标准错误内容写入文件
-    //             errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/autoware_menu_button/check_ros_topics.sh";
-    //             // 关闭文件
-    //             errorLogFile.close();
-    //         }
-    //     }
-    // });
     // -----------------------------------------------------------------
 
 
@@ -215,8 +193,7 @@ int main(int argc, char *argv[]) {
     // 连接 rosnode kill 的信号到具体的槽函数
     QObject::connect(rosNodeStop, &QAction::triggered, [&](){
         // 实现 rosnode kill 的功能
-        rosNodeStopProcess->start("bash", QStringList() 
-            << "-c"  
+        rosNodeStopProcess->start("/usr/bin/python3", QStringList() 
             << homePath + "/pix/scripts/scripts/autoware_menu_button/kill_ros.py");
     });
     // 连接 rosNodeStopProcess 的 finished 信号以检查脚本执行结果
@@ -233,11 +210,11 @@ int main(int argc, char *argv[]) {
 
             // 获取标准错误内容并将其记录到日志或显示给用户
             QByteArray errorOutput = rosNodeStopProcess->readAllStandardError();
-            QFile errorLogFile(homePath + "/error.log");
+            QFile errorLogFile(homePath + "/pix/ros-log/autoware_menu_button_error.log");
             if (errorLogFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) { // 使用Append标志
                 QTextStream errorLogStream(&errorLogFile);
                 // 将标准错误内容写入文件
-                errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/autoware_menu_button/check_ros_topics.sh";
+                errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/autoware_menu_button/kill_ros.py";
                 // 关闭文件
                 errorLogFile.close();
             }
@@ -246,18 +223,27 @@ int main(int argc, char *argv[]) {
     // -----------------------------------------------------------------
 
 
-    // -----------------------------------------------------------------连接 IPC 关闭的信号到具体的槽函数
-    QObject::connect(ipcStopAction, &QAction::triggered, [&](){
-        // 实现 IPC 关机的功能
-        ipcStopProcess->start("bash", QStringList() 
-            << "-c"  
-            << homePath + "/pix/scripts/scripts/autoware_menu_button/ipc_poweroff.sh");
+    // -----------------------------------------------------------------连接 软件检测的信号到具体的槽函数
+    QObject::connect(hardwareDetectionAction, &QAction::triggered, [&](){
+        // 显示进度弹窗
+        progressDialog_hardwareDetection->show();
 
-        QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
+        // 实现软件检测的功能
+        hardwareDetectionProcess->start("/usr/bin/python3", QStringList() 
+            << homePath + "/pix/scripts/scripts/autoware_menu_button/check_hardware_status.py");
     });
-    // 连接 ipcStopProcess 的 finished 信号以检查脚本执行结果
-    QObject::connect(ipcStopProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+
+    // 连接 progressDialog_hardwareDetection 的 canceled 信号到一个 lambda 表达式
+    QObject::connect(progressDialog_hardwareDetection, &QProgressDialog::canceled, [&]() {
+        if (hardwareDetectionProcess->state() == QProcess::Running) {
+            hardwareDetectionProcess->terminate(); // 终止正在运行的进程
+        }
+    });
+
+    // 连接 hardwareDetectionProcess 的 finished 信号以检查脚本执行结果
+    QObject::connect(hardwareDetectionProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                     [&](int exitCode, QProcess::ExitStatus exitStatus){
+        progressDialog_hardwareDetection->close(); // 关闭进度弹窗
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
             // 脚本成功执行
             QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
@@ -266,12 +252,12 @@ int main(int argc, char *argv[]) {
             QMessageBox::critical(nullptr, "错误", "脚本执行失败。", QMessageBox::Ok);
 
             // 获取标准错误内容并将其记录到日志或显示给用户
-            QByteArray errorOutput = ipcStopProcess->readAllStandardError();
-            QFile errorLogFile(homePath + "/error.log");
+            QByteArray errorOutput = hardwareDetectionProcess->readAllStandardError();
+            QFile errorLogFile(homePath + "/pix/ros-log/autoware_menu_button_error.log");
             if (errorLogFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) { // 使用Append标志
                 QTextStream errorLogStream(&errorLogFile);
                 // 将标准错误内容写入文件
-                errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/autoware_menu_button/check_ros_topics.sh";
+                errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/autoware_menu_button/check_hardware_status.py";
                 // 关闭文件
                 errorLogFile.close();
             }
@@ -281,16 +267,27 @@ int main(int argc, char *argv[]) {
 
 
     // -----------------------------------------------------------------
-    // 连接一键恢复的信号到具体的槽函数
-    QObject::connect(oneClickDetection, &QAction::triggered, [&](){
-        // 实现一键恢复的功能
-        oneClickDetectionProcess->start("bash", QStringList() 
-            << "-c"  
-            << homePath + "/pix/scripts/scripts/autoware_menu_button/one_click_detection.sh");
+    // 连接硬件检测的信号到具体的槽函数
+    QObject::connect(softwareDetectionAction, &QAction::triggered, [&](){
+        // 显示进度弹窗
+        progressDialog_softwareDetection->show();
+
+        // 实现硬件检测的功能
+        softwareDetectionProcess->start("/usr/bin/python3", QStringList() 
+            << homePath + "/pix/scripts/scripts/autoware_menu_button/check_software_status.py");
     });
-    // 连接 oneClickDetectionProcess 的 finished 信号以检查脚本执行结果
-    QObject::connect(oneClickDetectionProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+
+    // 连接 progressDialog_softwareDetection 的 canceled 信号到一个 lambda 表达式
+    QObject::connect(progressDialog_softwareDetection, &QProgressDialog::canceled, [&]() {
+        if (softwareDetectionProcess->state() == QProcess::Running) {
+            softwareDetectionProcess->terminate(); // 终止正在运行的进程
+        }
+    });
+
+    // 连接 softwareDetectionProcess 的 finished 信号以检查脚本执行结果
+    QObject::connect(softwareDetectionProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                     [&](int exitCode, QProcess::ExitStatus exitStatus){
+        progressDialog_softwareDetection->close(); // 关闭进度弹窗
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
             // 脚本成功执行
             QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
@@ -299,12 +296,12 @@ int main(int argc, char *argv[]) {
             QMessageBox::critical(nullptr, "错误", "脚本执行失败。", QMessageBox::Ok);
 
             // 获取标准错误内容并将其记录到日志或显示给用户
-            QByteArray errorOutput = ipcStopProcess->readAllStandardError();
-            QFile errorLogFile(homePath + "/error.log");
+            QByteArray errorOutput = softwareDetectionProcess->readAllStandardError();
+            QFile errorLogFile(homePath + "/pix/ros-log/autoware_menu_button_error.log");
             if (errorLogFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) { // 使用Append标志
                 QTextStream errorLogStream(&errorLogFile);
                 // 将标准错误内容写入文件
-                errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/autoware_menu_button/one_click_detection.sh";
+                errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/autoware_menu_button/check_software_status.py";
                 // 关闭文件
                 errorLogFile.close();
             }
