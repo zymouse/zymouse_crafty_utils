@@ -18,8 +18,13 @@ if [ -z "$map_path" ]; then
     exit 1
 fi
 
+if [[ $map_path != /* ]]; then
+    echo "请输入绝对路径"
+    exit 1
+fi
+
+
 pcd_name=pointcloud_map
-map_path=$SCRIPT_DIR/$map_path
 if [ -f "$map_path/$pcd_name.pcd" ]; then
     log_info "在$map_path 中找到$pcd_name.pcd文件"
 else
@@ -48,7 +53,7 @@ log_info "开始分片"
 in_map_path=$map_path
 out_map_path=$map_path/$pcd_name.pcd.1
 mkdir $out_map_path
-$SCRIPT_DIR/pointcloud_divider/scripts/pointcloud_divider.sh \
+$SCRIPT_DIR/scripts/pointcloud_divider.sh \
     $in_map_path \
     $out_map_path \
     $pcd_name \
