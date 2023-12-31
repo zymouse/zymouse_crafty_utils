@@ -73,7 +73,6 @@ int main(int argc, char *argv[]) {
 
     QString homePath = QString(qgetenv("HOME"));
     autowareStartAction->setEnabled(false); // 不可点击
-    rosNodeStop->setEnabled(false); // 不可点击
     softwareDetectionAction->setEnabled(false); // 不可点击
     
     // autowareStopAction 点击次数
@@ -200,11 +199,9 @@ int main(int argc, char *argv[]) {
     QObject::connect(rosNodeStopProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                     [&](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
-            rosNodeStop->setEnabled(false); // 不可点击
             // 脚本成功执行
             QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
         } else {
-            rosNodeStop->setEnabled(true); // 不可点击
             // 脚本执行失败
             QMessageBox::critical(nullptr, "错误", "脚本执行失败。", QMessageBox::Ok);
 
