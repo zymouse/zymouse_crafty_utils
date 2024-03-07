@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
     QAction *rosNodeStop = new QAction("ROS-NODE-kill", &menu);
     QAction *hardwareDetectionAction = new QAction("Hardware-Detection", &menu);
     QAction *softwareDetectionAction = new QAction("Software-Detection", &menu);
+    QAction *otaAction = new QAction("OTA", &menu);
     
     // 添加自定义的菜单项的脚本处理项
     QProcess *autowareRestartProcess = new QProcess(&menu);
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]) {
     QProcess *rosNodeStopProcess = new QProcess(&menu);
     QProcess *hardwareDetectionProcess = new QProcess(&menu);
     QProcess *softwareDetectionProcess = new QProcess(&menu);
+    QProcess *otaProcess = new QProcess(&menu);
 
     // 添加进度条弹窗
     QProgressDialog *progressDialog1 = new QProgressDialog("autoware启动脚本正在执行...", "取消", 0, 0, &menu);
@@ -69,6 +71,7 @@ int main(int argc, char *argv[]) {
     menu.addSeparator(); // 添加另一个分隔符
     menu.addAction(softwareDetectionAction);
     menu.addSeparator(); // 添加另一个分隔符
+    menu.addAction(otaAction);
     menu.addAction(exitAction);
 
     QString homePath = QString(qgetenv("HOME"));
@@ -303,6 +306,39 @@ int main(int argc, char *argv[]) {
                 errorLogFile.close();
             }
         }
+    });
+    // -----------------------------------------------------------------
+
+    // -----------------------------------------------------------------
+    // 连接ota到具体的槽函数
+    QObject::connect(otaAction, &QAction::triggered, [&](){
+        // 实现 autoware 恢复的功能
+        otaProcess->start("bash", QStringList() 
+            << "-c"  
+            << homePath + "/pix/scripts/scripts/program/ota_main.sh");
+    });
+
+    // 连接菜单项的信号到具体的槽函数 -- 非阻塞
+    QObject::connect(otaProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                    [&](int exitCode, QProcess::ExitStatus exitStatus){
+        if (exitStatus == QProcess::NormalExit && exitCode == 0) {
+            QMessageBox::information(nullptr, "成功", "脚本执行成功。", QMessageBox::Ok);
+
+        } else {
+            // 脚本执行失败
+            QMessageBox::critical(nullptr, "错误", "脚本执行失败。", QMessageBox::Ok);
+
+            // 获取标准错误内容并将其记录到日志或显示给用户
+            QByteArray errorOutput = otaProcess->readAllStandardError();
+            QFile errorLogFile(homePath + "/pix/ros-log/autoware_menu_button_error.log");
+            if (errorLogFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) { // 使用Append标志
+                QTextStream errorLogStream(&errorLogFile);
+                // 将标准错误内容写入文件
+                errorLogStream << errorOutput << homePath + "/pix/scripts/scripts/program/ota_main.sh";
+                // 关闭文件
+                errorLogFile.close();
+            }
+        } 
     });
     // -----------------------------------------------------------------
 
