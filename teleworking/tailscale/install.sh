@@ -1,4 +1,3 @@
 #!/bin/bash
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-
-$SCRIPT_DIR/wyc_linux_64 -token XOS56lPJfEtuI8JQ
+curl -fsSL https://tailscale.com/install.sh | sh
