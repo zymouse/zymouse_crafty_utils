@@ -1,6 +1,6 @@
 # ffplay -f v4l2 -i /dev/video0
 - dev_path: /dev/video0
-  ln_name: camera/top_6mm
+  ln_name: camera/top_12mm
 # - dev_path: /dev/video2
 #   ln_name: camera/front_3mm
 # - dev_path: /dev/video4
