@@ -14,19 +14,20 @@ function log_error() {
 }
     
 # 检测tailscale是否安装 
+log_info "1.0 检测tailscale是否安装"
 if ! command -v tailscale >/dev/null; then
     log_warning "Tailscale工具安装中"
     curl -fsSL https://tailscale.com/install.sh | sh
 
-    if [ $? -eq 0 ]; then
-        log_info "Tailscale 已成功"
-    else
-        log_error "Tailscale 安装失败"
+    if [ $? -ne 0 ]; then
+        log_error "Tailscale 安装失败:[建议使用clash局域网代理执行]"
         exit 1
     fi
 fi
+log_info "2.0 检测tailscale已安装"
 
 # 运行tailscale 应用
+log_info "3.0 tailscale应用 开始运行"
 token=$1
 if [[ -z $token ]]; then
     log_error "请输出: ./tailscale.sh tskey-auth-xxxxx"
@@ -41,9 +42,9 @@ fi
 
 sudo tailscale up --authkey $token
 if [ $? -eq 0 ]; then
-    log_info "Tailscale 运行成功"
+    log_info "4.0 Tailscale应用 运行成功"
 else
-    log_error "Tailscale 执行失败"
+    log_error "Tailscale应用 运行失败"
 fi
 
 
