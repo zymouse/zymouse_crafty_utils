@@ -26,7 +26,6 @@ if ! command -v tailscale >/dev/null; then
     fi
 fi
 
-
 # 运行tailscale 应用
 token=$1
 if [[ -z $token ]]; then
