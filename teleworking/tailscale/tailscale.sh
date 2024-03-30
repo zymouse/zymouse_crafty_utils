@@ -49,4 +49,4 @@ fi
 
 
 # 如何使用
-# curl -fsSL https://raw.githubusercontent.com/zymouse/zymouse_crafty_utils/main/teleworking/tailscale/tailscale.sh | bash -s -- <token-key>
+# ./tailscale.sh <token-key>
