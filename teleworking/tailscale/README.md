@@ -9,7 +9,7 @@ curl -fsSL https://raw.githubusercontent.com/zymouse/zymouse_crafty_utils/main/t
 ```
 > 国内使用
 ```shell
-curl -fsSL https://gitee.com/zymouse/zymouse_crafty_utils/blob/master/tailscale.sh | bash -s -- <token-key>
+curl -fsSL https://gitee.com/zymouse/zymouse_crafty_utils/raw/master/tailscale.sh | bash -s -- <token-key>
 ```
 ![](./success.png)
 
@@ -20,5 +20,5 @@ curl -fsSL https://raw.githubusercontent.com/zymouse/zymouse_crafty_utils/main/t
 ```
 > 国内使用
 ```shell
-curl -fsSL https://gitee.com/zymouse/zymouse_crafty_utils/blob/master/tailscale_exit_node.sh | bash -s -- <exit-node-ip>
+curl -fsSL https://gitee.com/zymouse/zymouse_crafty_utils/raw/master/tailscale_exit_node.sh | bash -s -- <exit-node-ip>
 ```
