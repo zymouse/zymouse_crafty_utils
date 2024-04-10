@@ -39,7 +39,7 @@ if [[ "$token" != tskey-auth-* ]]; then
     exit 1
 fi
 
-
+sudo tailscale logout
 sudo tailscale up --authkey $token
 if [ $? -eq 0 ]; then
     log_info "4.0 Tailscale应用 运行成功"
