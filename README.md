@@ -3,7 +3,7 @@
 ## 目录
 - [ROS2数据采集脚本](./collection_ros2bag/README.md)
 - [超声波can数据分析](./ultra_sonic_test/README.md)
-- [工作效率脚本](./script/README.md)
+- [远程工作脚本](./teleworking/README.md)
 - [autoware按钮遥控](./autowre_tools/README.md)
 - [autoware启动按钮](./script/autoware_menu_button/README.md)
 
